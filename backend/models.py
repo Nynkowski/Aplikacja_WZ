@@ -51,7 +51,7 @@ class WZ_regular(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))    
     user = relationship("User", back_populates="wz_regulars")
-    sender_id = Column(String(10), ForeignKey("adress.name"))
+    sender_id = Column(String(10), ForeignKey("adress.name"))  #chodzi o adress, powinno być name ale za późno na zmiane
     sender = relationship(
         "Adress",
         foreign_keys=[sender_id],
