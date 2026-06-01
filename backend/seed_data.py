@@ -2,13 +2,9 @@ import random
 from pathlib import Path
 import sys
 
-if __package__ in (None, ""):
-    sys.path.insert(0, str(Path(__file__).resolve().parent))
-    import crud
-    from database import SessionLocal
-else:
-    from . import crud
-    from .database import SessionLocal
+
+from . import crud
+from .database import SessionLocal
 
 def seed_users():
     db = SessionLocal()

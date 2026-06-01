@@ -5,12 +5,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 
 
-if __package__ in (None, ""):
-    sys.path.insert(0, str(Path(__file__).resolve().parent))
-    import database
-    import models
-else:
-    from . import database, models
+from . import database, models
 
 
 def create_database():

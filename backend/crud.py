@@ -1,10 +1,6 @@
 from sqlalchemy.orm import Session
+from . import models, auth
 
-
-try:
-	from . import models, auth
-except ImportError:
-	import models, auth
 
 
 def get_user_by_username(db: Session, username: str):
