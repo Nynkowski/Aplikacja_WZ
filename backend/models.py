@@ -74,7 +74,7 @@ class WZ_Content(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     wz_id = Column(Integer, ForeignKey("wz_regular.id"))
-    wz = relationship("WZ_regular", back_populates="wz_contents")
+    wz_regular = relationship("WZ_regular", back_populates="wz_contents")
     adding_user_id = Column(Integer, ForeignKey("users.id"))
     adding_user = relationship(
         "User",
