@@ -99,13 +99,13 @@ class WZ_special(Base):
     user = relationship("User", back_populates="wz_specials")
     sender_id = Column(String(10), ForeignKey("adress.name"))
     sender = relationship("Adress", back_populates="sender_wz_specials")
-    recipient = Column(String(63))
+    recipient = Column(String(255))
     seal_number = Column(String(10))
     car_plates = Column(String(10))
     created_date = Column (DateTime(timezone=True), server_default=func.now(), nullable=False)
     departure_date = Column(DateTime(timezone=True))
     wz_approval = Column(Boolean, default=False)
-    approver = Column(String(30))
+    approver = Column(String(100))
     wz_contents = relationship("WZ_special_content", back_populates="wz_special")
 
 class WZ_special_content(Base):
