@@ -1,0 +1,43 @@
+:root {
+  /* Tło strony – bardzo jasny błękit */
+  --page-bg: #eef2f8;
+  --page-bg-accent: #dce6f5;
+
+  /* Karta logowania – czysta biel */
+  --panel-bg: #ffffff;
+  --panel-border: #c8d6ea;
+  --panel-shadow:
+    0 8px 32px rgba(0, 51, 102, 0.1), 0 1px 4px rgba(0, 51, 102, 0.06);
+
+  /* Tekst – ciemny, czytelny */
+  --text-primary: #0d1f35;
+  --text-secondary: #4a6080;
+
+  /* Pola input – białe z delikatną ramką */
+  --field-bg: #f7fafd;
+  --field-border: #b0c4de;
+  --field-focus: #003366;
+
+  /* Przycisk – granatowy Autoliv */
+  --button-bg: #003366;
+  --button-bg-hover: #00254d;
+  --button-text: #ffffff;
+
+  /* Błąd */
+  --error-bg: #fff1f1;
+  --error-border: #f5a0a0;
+  --error-text: #9b1c1c;
+
+  /* Sukces */
+  --success-bg: #f0faf4;
+  --success-border: #86efac;
+  --success-text: #14532d;
+
+  /* Focus ring */
+  --ring: 0 0 0 3px rgba(0, 51, 102, 0.18);
+
+  /* Zaokrąglenia */
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 8px;
+}
