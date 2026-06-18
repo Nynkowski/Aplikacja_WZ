@@ -2,9 +2,10 @@ import { useState } from 'react'
 import Button from '../components/Button'
 import Input from '../components/Input'
 import { login } from '../services/auth'
+import type { UserRole } from '../types/auth'
 
 type LoginPageProps = {
-  onLogin: (username: string) => void
+  onLogin: (user: { username: string; role: UserRole }) => void
 }
 
 function LoginPage({ onLogin }: LoginPageProps) {
@@ -21,8 +22,8 @@ function LoginPage({ onLogin }: LoginPageProps) {
     setIsLoading(true)
 
     try {
-      await login({ username, password })
-      onLogin(username)
+      const authResult = await login({ username, password })
+      onLogin({ username: authResult.username, role: authResult.role })
     } catch {
       setError('Nieprawidłowy login lub hasło')
     } finally {

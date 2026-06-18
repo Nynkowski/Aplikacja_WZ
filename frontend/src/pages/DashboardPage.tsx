@@ -1,9 +1,14 @@
+import type { UserRole } from '../types/auth'
+
 type DashboardPageProps = {
   username: string
+  role: UserRole
   onLogout: () => void
 }
 
-function DashboardPage({ username, onLogout }: DashboardPageProps) {
+function DashboardPage({ username, role, onLogout }: DashboardPageProps) {
+  const isAdmin = role === 'admin'
+
   return (
     <div className="dashboard">
       <header className="dashboard__header">
@@ -13,6 +18,7 @@ function DashboardPage({ username, onLogout }: DashboardPageProps) {
         </div>
         <div className="dashboard__header-user">
           <span className="dashboard__header-username">{username}</span>
+          <span className="dashboard__header-username">Rola: {role}</span>
           <button className="dashboard__logout-btn" onClick={onLogout}>
             Wyloguj
           </button>
@@ -26,6 +32,18 @@ function DashboardPage({ username, onLogout }: DashboardPageProps) {
         </section>
 
         <div className="dashboard__grid">
+          {isAdmin ? (
+            <section className="dashboard__card">
+              <div className="dashboard__card-header">
+                <h2>Panel administratora</h2>
+                <button className="dashboard__action-btn">+ Zarządzaj użytkownikami</button>
+              </div>
+              <div className="dashboard__empty">
+                <p>Tu możesz dodać funkcje dostępne tylko dla roli admin.</p>
+              </div>
+            </section>
+          ) : null}
+
           <section className="dashboard__card">
             <div className="dashboard__card-header">
               <h2>WZ Regular</h2>

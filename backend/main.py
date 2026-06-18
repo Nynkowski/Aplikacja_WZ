@@ -18,11 +18,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post('/login')
+@app.post('/login', response_model=schemas.LoginResponse)
 def login(user_request: schemas.UserLogin, db = Depends(database.get_db)):
     user = crud.get_user_by_username(db, user_request.username)
 
     if not user or not auth.verify_password(user_request.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Invalid username or password")
     
-    return {"message": "Login successful"}
+    return {
+        "message": "Login successful",
+        "username": user.username,
+        "role": user.type,
+    }
