@@ -183,7 +183,11 @@ input {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(150deg, var(--page-bg) 0%, var(--page-bg-accent) 100%);
+  background: linear-gradient(
+    150deg,
+    var(--page-bg) 0%,
+    var(--page-bg-accent) 100%
+  );
 }
 
 .dashboard__header {
@@ -208,7 +212,9 @@ input {
   color: #fff;
   background: transparent;
   cursor: pointer;
-  transition: background 160ms ease, border-color 160ms ease;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
 }
 
 .dashboard__menu-btn:hover {
@@ -260,7 +266,9 @@ input {
   color: #fff;
   background: transparent;
   cursor: pointer;
-  transition: background 160ms ease, border-color 160ms ease;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
 }
 
 .dashboard__logout-btn:hover {
@@ -297,6 +305,7 @@ input {
 }
 
 .dashboard__nav-tile {
+  display: block;
   width: 100%;
   text-align: left;
   border: 1px solid var(--panel-border);
@@ -311,6 +320,10 @@ input {
     box-shadow 160ms ease,
     transform 160ms ease,
     background 160ms ease;
+}
+
+.dashboard__nav-link {
+  text-decoration: none;
 }
 
 .dashboard__nav-tile:hover {
@@ -355,7 +368,8 @@ input {
 }
 
 .dashboard__content {
-  max-width: 960px;
+  width: min(100%, 960px);
+  margin-inline: auto;
 }
 
 .dashboard__grid {
@@ -365,17 +379,20 @@ input {
 }
 
 .dashboard__card {
+  width: 100%;
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--panel-shadow);
-  padding: 24px;
+  padding: clamp(16px, 2vw, 24px);
 }
 
 .dashboard__card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
   margin-bottom: 20px;
 }
 
@@ -395,7 +412,9 @@ input {
   color: #fff;
   background: #003366;
   cursor: pointer;
-  transition: background 160ms ease, transform 160ms ease;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
 }
 
 .dashboard__action-btn:hover {
@@ -404,7 +423,7 @@ input {
 }
 
 .dashboard__empty {
-  padding: 40px 20px;
+  padding: clamp(20px, 4vw, 40px) clamp(14px, 2.5vw, 20px);
   text-align: center;
   color: var(--text-secondary);
   font-size: 0.9rem;
@@ -419,6 +438,50 @@ input {
   padding: 2px 6px;
   border-radius: 4px;
   color: #003366;
+}
+
+.dashboard__tabs {
+  display: inline-flex;
+  gap: 8px;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  background: var(--field-bg);
+  border: 1px solid var(--panel-border);
+  margin-bottom: 16px;
+}
+
+.dashboard__tab-btn {
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.dashboard__tab-btn:hover {
+  background: rgba(0, 51, 102, 0.08);
+  color: var(--text-primary);
+}
+
+.dashboard__tab-btn--active,
+.dashboard__tab-btn--active:hover {
+  background: #003366;
+  color: #fff;
+}
+
+.dashboard__admin-panel {
+  margin-top: 8px;
+}
+
+.dashboard__admin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }
 
 @media (max-width: 768px) {
@@ -474,6 +537,18 @@ input {
 
   .dashboard__main {
     padding: 24px 16px;
+  }
+
+  .dashboard__tabs {
+    width: 100%;
+  }
+
+  .dashboard__tab-btn {
+    flex: 1;
+  }
+
+  .dashboard__admin-grid {
+    grid-template-columns: 1fr;
   }
 
   .dashboard__grid {

@@ -1,31 +1,22 @@
-import { useState } from 'react'
-import DashboardPage from './pages/DashboardPage'
-import LoginPage from './pages/LoginPage'
-import type { UserRole } from './types/auth'
+import { useState } from "react";
+import AppRouter from "./app/AppRouter";
+import type { UserRole } from "./types/auth";
 
 type LoggedInUser = {
-  username: string
-  role: UserRole
-}
+  username: string;
+  role: UserRole;
+};
 
 function App() {
-  const [loggedInUser, setLoggedInUser] = useState<LoggedInUser | null>(null)
-
-  if (loggedInUser) {
-    return (
-      <DashboardPage
-        username={loggedInUser.username}
-        role={loggedInUser.role}
-        onLogout={() => setLoggedInUser(null)}
-      />
-    )
-  }
+  const [loggedInUser, setLoggedInUser] = useState<LoggedInUser | null>(null);
 
   return (
-    <LoginPage
+    <AppRouter
+      loggedInUser={loggedInUser}
       onLogin={(user) => setLoggedInUser(user)}
+      onLogout={() => setLoggedInUser(null)}
     />
-  )
+  );
 }
 
-export default App
+export default App;

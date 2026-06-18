@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
-  DASHBOARD_VIEWS,
-  type AccessRole,
-  type DashboardView,
+  getAvailableViewsForRole,
+  type DashboardViewConfig,
 } from "../config/dashboardViews";
 import type { UserRole } from "../types/auth";
 
@@ -13,88 +13,23 @@ type DashboardPageProps = {
 };
 
 function DashboardPage({ username, role, onLogout }: DashboardPageProps) {
-  const normalizedRole = String(role).trim().toLowerCase();
-  const isAdmin = normalizedRole === "admin";
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeView, setActiveView] = useState<DashboardView>(
-    isAdmin ? "admin" : "wz-regular",
+  const location = useLocation();
+
+  const availableViews = useMemo(
+    () => getAvailableViewsForRole(String(role)),
+    [role],
   );
 
-  const hasRoleAccess = (allowedRoles: AccessRole[]) =>
-    allowedRoles.includes(normalizedRole as AccessRole);
-
-  const hasViewAccess = (view: DashboardView) => {
-    const config = DASHBOARD_VIEWS.find((item) => item.id === view);
-    return config ? hasRoleAccess(config.allowedRoles) : false;
-  };
-
-  const availableViews = DASHBOARD_VIEWS.filter((item) =>
-    hasRoleAccess(item.allowedRoles),
-  );
-
-  const fallbackView = availableViews[0]?.id ?? "wz-regular";
-  const resolvedActiveView = hasViewAccess(activeView)
-    ? activeView
-    : fallbackView;
-
-  const handleSelectView = (view: DashboardView) => {
-    if (hasViewAccess(view)) {
-      setActiveView(view);
-    } else {
-      setActiveView(fallbackView);
-    }
-
-    setIsSidebarOpen(false);
-  };
-
-  const renderActiveSection = () => {
-    if (resolvedActiveView === "admin" && isAdmin) {
-      return (
-        <section className="dashboard__card">
-          <div className="dashboard__card-header">
-            <h2>Panel administratora</h2>
-            <button className="dashboard__action-btn">
-              + Zarzadzaj uzytkownikami
-            </button>
-          </div>
-          <div className="dashboard__empty">
-            <p>Tu mozesz dodac funkcje dostepne tylko dla roli admin.</p>
-          </div>
-        </section>
-      );
-    }
-
-    if (resolvedActiveView === "wz-special") {
-      return (
-        <section className="dashboard__card">
-          <div className="dashboard__card-header">
-            <h2>WZ Special</h2>
-            <button className="dashboard__action-btn">+ Nowy WZ Special</button>
-          </div>
-          <div className="dashboard__empty">
-            <p>
-              Brak danych - backend wymaga endpointu{" "}
-              <code>GET /wz-special</code>
-            </p>
-          </div>
-        </section>
-      );
-    }
-
+  const activeView = useMemo<DashboardViewConfig | null>(() => {
     return (
-      <section className="dashboard__card">
-        <div className="dashboard__card-header">
-          <h2>WZ Regular</h2>
-          <button className="dashboard__action-btn">+ Nowy WZ</button>
-        </div>
-        <div className="dashboard__empty">
-          <p>
-            Brak danych - backend wymaga endpointu <code>GET /wz-regular</code>
-          </p>
-        </div>
-      </section>
+      availableViews.find((view) =>
+        location.pathname.startsWith(`/dashboard/${view.path}`),
+      ) ??
+      availableViews[0] ??
+      null
     );
-  };
+  }, [availableViews, location.pathname]);
 
   return (
     <div className="dashboard">
@@ -129,14 +64,16 @@ function DashboardPage({ username, role, onLogout }: DashboardPageProps) {
           <p className="dashboard__sidebar-title">Sekcje</p>
           <nav className="dashboard__nav" aria-label="Nawigacja dashboardu">
             {availableViews.map((view) => (
-              <button
+              <NavLink
                 key={view.id}
-                type="button"
-                className={`dashboard__nav-tile ${resolvedActiveView === view.id ? "dashboard__nav-tile--active" : ""}`}
-                onClick={() => handleSelectView(view.id)}
+                to={`/dashboard/${view.path}`}
+                onClick={() => setIsSidebarOpen(false)}
+                className={({ isActive }) =>
+                  `dashboard__nav-link dashboard__nav-tile ${isActive ? "dashboard__nav-tile--active" : ""}`
+                }
               >
                 {view.label}
-              </button>
+              </NavLink>
             ))}
           </nav>
         </aside>
@@ -158,16 +95,12 @@ function DashboardPage({ username, role, onLogout }: DashboardPageProps) {
                 {username.split(".")[0]}
               </span>
             </h1>
-            <p>
-              Wybrana sekcja:{" "}
-              {
-                DASHBOARD_VIEWS.find((item) => item.id === resolvedActiveView)
-                  ?.label
-              }
-            </p>
+            <p>Wybrana sekcja: {activeView?.label ?? "Brak dostepu"}</p>
           </section>
 
-          <div className="dashboard__content">{renderActiveSection()}</div>
+          <div className="dashboard__content">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
