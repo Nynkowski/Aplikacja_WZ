@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException
+from typing import Optional
+from fastapi import FastAPI, Depends, HTTPException, Query
 from . import schemas, auth, crud, database
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,4 +30,37 @@ def login(user_request: schemas.UserLogin, db = Depends(database.get_db)):
         "message": "Login successful",
         "username": user.username,
         "role": user.type,
+    }
+
+@app.get('/wz-regular/open', response_model=schemas.WzRegularOpenPageResponse)
+def get_open_wz_regular(
+    db: Session = Depends(database.get_db),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+    username: Optional[str] = Query(default=None),
+    user_id: Optional[str] = Query(default=None, alias="user_id"),
+    sender_id: Optional[str] = Query(default=None),
+    recipient_id: Optional[str] = Query(default=None),
+    seal_number: Optional[str] = Query(default=None),
+    car_plates: Optional[str] = Query(default=None),
+    created_date: Optional[str] = Query(default=None),
+):
+    effective_username = username.strip() if username and username.strip() else None
+    if not effective_username and user_id and user_id.strip():
+        effective_username = user_id.strip()
+
+    items = crud.get_wz_open_regular(
+        db, page, page_size, effective_username, sender_id, recipient_id, seal_number, car_plates, created_date
+    )
+    total = crud.get_wz_open_regular_total(
+        db, effective_username, sender_id, recipient_id, seal_number, car_plates, created_date
+    )
+    total_pages = (total + page_size - 1) // page_size
+
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": total_pages,
     }

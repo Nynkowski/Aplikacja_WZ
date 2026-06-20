@@ -440,6 +440,96 @@ input {
   color: #003366;
 }
 
+.dashboard__filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.dashboard__filter-input {
+  width: 100%;
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  background: #fff;
+  color: var(--text-primary);
+}
+
+.dashboard__filter-input:focus {
+  outline: none;
+  border-color: var(--field-focus);
+  box-shadow: var(--ring);
+}
+
+.dashboard__table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+}
+
+.dashboard__table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+  background: #fff;
+}
+
+.dashboard__table th,
+.dashboard__table td {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--panel-border);
+  font-size: 0.92rem;
+}
+
+.dashboard__table th {
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: #f5f8fd;
+}
+
+.dashboard__table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.dashboard__pagination-summary {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.dashboard__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.dashboard__pagination-btn {
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  background: #fff;
+  color: var(--text-primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dashboard__pagination-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.dashboard__pagination-page {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
 .dashboard__tabs {
   display: inline-flex;
   gap: 8px;
@@ -539,6 +629,10 @@ input {
     padding: 24px 16px;
   }
 
+  .dashboard__filters {
+    grid-template-columns: 1fr;
+  }
+
   .dashboard__tabs {
     width: 100%;
   }
@@ -549,6 +643,10 @@ input {
 
   .dashboard__admin-grid {
     grid-template-columns: 1fr;
+  }
+
+  .dashboard__pagination {
+    flex-wrap: wrap;
   }
 
   .dashboard__grid {

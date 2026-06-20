@@ -1,3 +1,4 @@
+from datetime import datetime
 from backend import crud, models
 
 
@@ -131,3 +132,72 @@ def test_post_wz_special_content(db_session):
     assert content.wz_id == wz_special.id
     assert content.adding_user_id == user.id
     assert content.content_description == "Pallets: 5"
+
+def test_get_wz_open_regular(db_session):
+    user = _create_user(db_session, username="open_regular_user")
+    _create_address(db_session, "S3")
+    _create_address(db_session, "R3")
+
+    wz1 = crud.post_wz_regular(
+        db_session,
+        user_id=user.id,
+        sender_id="S3",
+        recipient_id="R3",
+        seal_number="SEAL111",
+        car_plates="WX11111",
+    )
+    wz2 = crud.post_wz_regular(
+        db_session,
+        user_id=user.id,
+        sender_id="S3",
+        recipient_id="R3",
+        seal_number="SEAL222",
+        car_plates="WX22222",
+    )
+
+    wz_closed = crud.post_wz_regular(
+        db_session,
+        user_id=user.id,
+        sender_id="S3",
+        recipient_id="R3",
+        seal_number="SEAL333",
+        car_plates="WX33333",
+    )
+    wz_closed.departure_date = datetime.now()
+    db_session.commit()
+
+    open_wz_list = crud.get_wz_open_regular(db_session)
+
+    assert len(open_wz_list) == 2
+    assert wz1 in open_wz_list
+    assert wz2 in open_wz_list
+    assert wz_closed not in open_wz_list
+
+
+def test_get_wz_open_regular_filters_by_username_case_insensitive(db_session):
+    user_target = _create_user(db_session, username="JanKowalski")
+    user_other = _create_user(db_session, username="anna")
+    _create_address(db_session, "S4")
+    _create_address(db_session, "R4")
+
+    target_wz = crud.post_wz_regular(
+        db_session,
+        user_id=user_target.id,
+        sender_id="S4",
+        recipient_id="R4",
+        seal_number="SEAL444",
+        car_plates="WX44444",
+    )
+    other_wz = crud.post_wz_regular(
+        db_session,
+        user_id=user_other.id,
+        sender_id="S4",
+        recipient_id="R4",
+        seal_number="SEAL555",
+        car_plates="WX55555",
+    )
+
+    filtered = crud.get_wz_open_regular(db_session, username=" jan ")
+
+    assert target_wz in filtered
+    assert other_wz not in filtered

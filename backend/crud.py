@@ -1,4 +1,7 @@
-from sqlalchemy.orm import Session
+from typing import Optional
+from datetime import datetime
+from sqlalchemy import extract, func
+from sqlalchemy.orm import Session, contains_eager
 from . import models, auth
 
 
@@ -77,3 +80,99 @@ def post_wz_special_content(db: Session, wz_id: int, adding_user_id: int, conten
 	db.commit()
 	db.refresh(db_wz_special_content)
 	return db_wz_special_content
+
+
+def _build_wz_open_regular_query(
+		db: Session,
+		username: Optional[str] = None,
+		sender_id: Optional[str] = None,
+		recipient_id: Optional[str] = None,
+		seal_number: Optional[str] = None,
+		car_plates: Optional[str] = None,
+		created_date: Optional[str] = None,
+):
+	query = (
+		db.query(models.WZ_regular)
+		.join(models.WZ_regular.user)
+		.options(contains_eager(models.WZ_regular.user))
+		.filter(models.WZ_regular.departure_date.is_(None))
+	)
+
+	if username:
+		username_value = username.strip()
+		if username_value:
+			query = query.filter(models.User.username.ilike(f"%{username_value}%"))
+	if sender_id:
+		query = query.filter(models.WZ_regular.sender_id.contains(sender_id))
+	if recipient_id:
+		query = query.filter(models.WZ_regular.recipient_id.contains(recipient_id))
+	if seal_number:
+		query = query.filter(models.WZ_regular.seal_number.contains(seal_number))
+	if car_plates:
+		query = query.filter(models.WZ_regular.car_plates.contains(car_plates))
+	if created_date:
+		date_value = created_date.strip()
+		if date_value.isdigit():
+			day = int(date_value)
+			if 1 <= day <= 31:
+				query = query.filter(extract("day", models.WZ_regular.created_date) == day)
+		else:
+			try:
+				parsed_date = datetime.fromisoformat(date_value)
+				query = query.filter(func.date(models.WZ_regular.created_date) == parsed_date.date())
+			except ValueError:
+				query = query.filter(func.date(models.WZ_regular.created_date).contains(date_value))
+
+	return query
+
+def get_wz_open_regular(
+		db: Session,
+		page: int = 1,
+		page_size: int = 20,
+		username: Optional[str] = None,
+		sender_id: Optional[str] = None,
+		recipient_id: Optional[str] = None,
+		seal_number: Optional[str] = None,
+		car_plates: Optional[str] = None,
+		created_date: Optional[str] = None
+	):
+	query = _build_wz_open_regular_query(
+		db,
+		username,
+		sender_id,
+		recipient_id,
+		seal_number,
+		car_plates,
+		created_date,
+	)
+
+	return (
+		query
+		.order_by(models.WZ_regular.created_date.desc(), models.WZ_regular.id.desc())
+		.offset((page - 1) * page_size)
+		.limit(page_size)
+		.all()
+	)
+
+
+def get_wz_open_regular_total(
+		db: Session,
+		username: Optional[str] = None,
+		sender_id: Optional[str] = None,
+		recipient_id: Optional[str] = None,
+		seal_number: Optional[str] = None,
+		car_plates: Optional[str] = None,
+		created_date: Optional[str] = None,
+):
+	query = _build_wz_open_regular_query(
+		db,
+		username,
+		sender_id,
+		recipient_id,
+		seal_number,
+		car_plates,
+		created_date,
+	)
+	return query.count()
+
+
