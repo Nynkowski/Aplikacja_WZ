@@ -1,5 +1,8 @@
 import type {
+  AdressOption,
   GetOpenWzRegularParams,
+  WzRegularCreateResult,
+  WzRegularEditData,
   WzRegularItem,
   WzRegularListResult,
 } from "../types/wz";
@@ -239,4 +242,265 @@ export async function getOpenWzRegular(
     hasNextPage,
     isServerPaginated: extracted.isServerPaginated,
   };
+}
+
+function mapEditContentItem(raw: Record<string, unknown>) {
+  return {
+    id: toNumber(raw.id) ?? 0,
+    contentDescription:
+      pickValue(
+        toDisplayString(raw.content_description),
+        toDisplayString(raw.contentDescription),
+      ) ?? "",
+    addingUser:
+      pickValue(
+        toDisplayString(raw.adding_user),
+        toDisplayString(raw.addingUser),
+        toDisplayString(raw.adding_user_name),
+        toDisplayString(raw.addingUserName),
+        toDisplayString(raw.username),
+        toDisplayString(raw.user),
+        toDisplayString(raw.adding_user_id),
+        toDisplayString(raw.addingUserId),
+      ) ?? "",
+    addedDate:
+      pickValue(
+        toDisplayString(raw.added_date),
+        toDisplayString(raw.addedDate),
+      ) ?? "",
+  };
+}
+
+export async function createWzRegularContent(
+  wzId: number,
+  payload: { contentDescription: string; addingUserId: number },
+) {
+  if (!Number.isFinite(payload.addingUserId)) {
+    throw new Error("Brak poprawnego adding_user_id.");
+  }
+
+  const response = await api.post<unknown>(`/wz-regular/${wzId}/content`, {
+    content_description: payload.contentDescription,
+    adding_user_id: payload.addingUserId,
+  });
+
+  const responseData = response.data;
+
+  if (!responseData || typeof responseData !== "object") {
+    throw new Error("Nieprawidlowy format odpowiedzi przy dodawaniu pozycji.");
+  }
+
+  const root = responseData as Record<string, unknown>;
+  const nestedData =
+    root.data && typeof root.data === "object"
+      ? (root.data as Record<string, unknown>)
+      : undefined;
+
+  return mapEditContentItem(nestedData ?? root);
+}
+
+export async function createWzRegular(payload: {
+  userId: number;
+  senderId: string;
+  recipientId: string;
+  sealNumber: string;
+  carPlates: string;
+}): Promise<WzRegularCreateResult> {
+  const response = await api.post<unknown>("/wz-regular", {
+    user_id: payload.userId,
+    sender_id: payload.senderId,
+    recipient_id: payload.recipientId,
+    seal_number: payload.sealNumber,
+    car_plates: payload.carPlates,
+  });
+
+  if (!response.data || typeof response.data !== "object") {
+    throw new Error("Nieprawidlowy format odpowiedzi przy tworzeniu WZ.");
+  }
+
+  const id = toNumber((response.data as Record<string, unknown>).id);
+
+  if (!id) {
+    throw new Error("Brak ID nowego WZ w odpowiedzi.");
+  }
+
+  return { id };
+}
+
+export async function deleteWzRegularContent(
+  wzId: number,
+  contentId: number,
+): Promise<void> {
+  await api.delete(`/wz-regular/${wzId}/content/${contentId}`);
+}
+
+export async function updateWzRegular(
+  wzId: number,
+  payload: {
+    senderId: string;
+    recipientId: string;
+    sealNumber: string;
+    carPlates: string;
+  },
+): Promise<WzRegularEditData> {
+  const response = await api.patch<unknown>(`/wz-regular/${wzId}`, {
+    sender_id: payload.senderId,
+    recipient_id: payload.recipientId,
+    seal_number: payload.sealNumber,
+    car_plates: payload.carPlates,
+  });
+
+  if (!response.data || typeof response.data !== "object") {
+    throw new Error("Nieprawidlowy format odpowiedzi przy zapisie WZ.");
+  }
+
+  const raw = response.data as Record<string, unknown>;
+  const rawContentList = Array.isArray(raw.content_list)
+    ? raw.content_list
+    : Array.isArray(raw.contentList)
+      ? raw.contentList
+      : [];
+
+  return {
+    id: toNumber(raw.id) ?? wzId,
+    username:
+      pickValue(
+        toDisplayString(raw.username),
+        toDisplayString(raw.user_id),
+        toDisplayString(raw.userId),
+      ) ?? "",
+    senderId:
+      pickValue(
+        toDisplayString(raw.sender_id),
+        toDisplayString(raw.senderId),
+      ) ?? "",
+    recipientId:
+      pickValue(
+        toDisplayString(raw.recipient_id),
+        toDisplayString(raw.recipientId),
+      ) ?? "",
+    sealNumber:
+      pickValue(
+        toDisplayString(raw.seal_number),
+        toDisplayString(raw.sealNumber),
+      ) ?? "",
+    carPlates:
+      pickValue(
+        toDisplayString(raw.car_plates),
+        toDisplayString(raw.carPlates),
+      ) ?? "",
+    createdDate:
+      pickValue(
+        toDisplayString(raw.created_date),
+        toDisplayString(raw.createdDate),
+      ) ?? "",
+    contentList: (rawContentList as Record<string, unknown>[]).map(
+      mapEditContentItem,
+    ),
+  };
+}
+
+export async function getWzRegularEditById(
+  id: number,
+): Promise<WzRegularEditData> {
+  const response = await api.get<unknown>(`/wz-regular/${id}/edit`);
+
+  if (!response.data || typeof response.data !== "object") {
+    throw new Error("Nieprawidlowy format odpowiedzi dla szczegolow WZ.");
+  }
+
+  const raw = response.data as Record<string, unknown>;
+  const rawContentList = Array.isArray(raw.content_list)
+    ? raw.content_list
+    : Array.isArray(raw.contentList)
+      ? raw.contentList
+      : [];
+
+  return {
+    id: toNumber(raw.id) ?? id,
+    username:
+      pickValue(
+        toDisplayString(raw.username),
+        toDisplayString(raw.user_id),
+        toDisplayString(raw.userId),
+      ) ?? "",
+    senderId:
+      pickValue(
+        toDisplayString(raw.sender_id),
+        toDisplayString(raw.senderId),
+      ) ?? "",
+    recipientId:
+      pickValue(
+        toDisplayString(raw.recipient_id),
+        toDisplayString(raw.recipientId),
+      ) ?? "",
+    sealNumber:
+      pickValue(
+        toDisplayString(raw.seal_number),
+        toDisplayString(raw.sealNumber),
+      ) ?? "",
+    carPlates:
+      pickValue(
+        toDisplayString(raw.car_plates),
+        toDisplayString(raw.carPlates),
+      ) ?? "",
+    createdDate:
+      pickValue(
+        toDisplayString(raw.created_date),
+        toDisplayString(raw.createdDate),
+      ) ?? "",
+    contentList: (rawContentList as Record<string, unknown>[]).map(
+      mapEditContentItem,
+    ),
+  };
+}
+
+function mapAdressOption(raw: Record<string, unknown>): AdressOption {
+  const name =
+    pickValue(toDisplayString(raw.name), toDisplayString(raw.adress_name)) ??
+    "";
+
+  return {
+    id: toNumber(raw.id) ?? 0,
+    name,
+    fullAdress:
+      pickValue(
+        toDisplayString(raw.full_adress),
+        toDisplayString(raw.fullAdress),
+        toDisplayString(raw.full_address),
+      ) ?? name,
+  };
+}
+
+export async function getAdresses(): Promise<AdressOption[]> {
+  const response = await api.get<unknown>("/adresses");
+  const payload = response.data;
+
+  if (Array.isArray(payload)) {
+    return (payload as Record<string, unknown>[]).map(mapAdressOption);
+  }
+
+  if (payload && typeof payload === "object") {
+    const root = payload as Record<string, unknown>;
+    const nestedData =
+      root.data && typeof root.data === "object"
+        ? (root.data as Record<string, unknown>)
+        : undefined;
+
+    const rows = [
+      root.items,
+      root.data,
+      root.results,
+      root.rows,
+      nestedData?.items,
+      nestedData?.rows,
+      nestedData?.results,
+    ].find((value) => Array.isArray(value)) as
+      | Record<string, unknown>[]
+      | undefined;
+
+    return (rows ?? []).map(mapAdressOption);
+  }
+
+  return [];
 }

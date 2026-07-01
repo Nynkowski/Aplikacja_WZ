@@ -201,3 +201,32 @@ def test_get_wz_open_regular_filters_by_username_case_insensitive(db_session):
 
     assert target_wz in filtered
     assert other_wz not in filtered
+
+
+def test_get_wz_regular_by_id_returns_user_and_content_list(db_session):
+    user = _create_user(db_session, username="editor_user")
+    _create_address(db_session, "S5")
+    _create_address(db_session, "R5")
+
+    wz = crud.post_wz_regular(
+        db_session,
+        user_id=user.id,
+        sender_id="S5",
+        recipient_id="R5",
+        seal_number="SEAL777",
+        car_plates="WX77777",
+    )
+    content = crud.post_wz_content(
+        db_session,
+        wz_id=wz.id,
+        adding_user_id=user.id,
+        content_description="Pallets: 9",
+    )
+
+    fetched = crud.get_wz_regular_by_id(db_session, wz.id)
+
+    assert fetched is not None
+    assert fetched.id == wz.id
+    assert fetched.user.username == "editor_user"
+    assert len(fetched.wz_contents) == 1
+    assert fetched.wz_contents[0].id == content.id

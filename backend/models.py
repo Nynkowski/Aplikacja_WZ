@@ -121,3 +121,4 @@ class WZ_special_content(Base):
         back_populates="wz_special_contents",
     )
     content_description = Column(String(255))
+

@@ -7,12 +7,18 @@ import {
 import type { UserRole } from "../types/auth";
 
 type DashboardPageProps = {
+  userId: number;
   username: string;
   role: UserRole;
   onLogout: () => void;
 };
 
-function DashboardPage({ username, role, onLogout }: DashboardPageProps) {
+function DashboardPage({
+  userId,
+  username,
+  role,
+  onLogout,
+}: DashboardPageProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
 
@@ -99,7 +105,7 @@ function DashboardPage({ username, role, onLogout }: DashboardPageProps) {
           </section>
 
           <div className="dashboard__content">
-            <Outlet />
+            <Outlet context={{ userId, role, username }} />
           </div>
         </main>
       </div>

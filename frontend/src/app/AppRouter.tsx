@@ -10,6 +10,8 @@ import {
 import AdminDashboardPage from "../pages/dashboard/AdminDashboardPage";
 import HistoryPage from "../pages/dashboard/HistoryPage";
 import SecurityConfirmationPage from "../pages/dashboard/SecurityConfirmationPage";
+import WzRegularCreatePage from "../pages/dashboard/WzRegularCreatePage";
+import WzRegularEditPage from "../pages/dashboard/WzRegularEditPage";
 import WzRegularPage from "../pages/dashboard/WzRegularPage";
 import WzSpecialPage from "../pages/dashboard/WzSpecialPage";
 import DashboardPage from "../pages/DashboardPage";
@@ -17,6 +19,7 @@ import LoginPage from "../pages/LoginPage";
 import type { UserRole } from "../types/auth";
 
 type LoggedInUser = {
+  id: number;
   username: string;
   role: UserRole;
 };
@@ -89,6 +92,7 @@ function AppRouter({ loggedInUser, onLogin, onLogout }: AppRouterProps) {
         path="/dashboard"
         element={
           <DashboardPage
+            userId={loggedInUser.id}
             username={loggedInUser.username}
             role={loggedInUser.role}
             onLogout={onLogout}
@@ -116,6 +120,32 @@ function AppRouter({ loggedInUser, onLogin, onLogout }: AppRouterProps) {
             }
           />
         ))}
+
+        <Route
+          path="wz-regular/new"
+          element={
+            <RoleGuard
+              allowedRoles={["admin", "user"]}
+              role={String(loggedInUser.role)}
+              fallbackPath={defaultDashboardPath}
+            >
+              <WzRegularCreatePage />
+            </RoleGuard>
+          }
+        />
+
+        <Route
+          path="wz-regular/:id/edit"
+          element={
+            <RoleGuard
+              allowedRoles={["admin", "user"]}
+              role={String(loggedInUser.role)}
+              fallbackPath={defaultDashboardPath}
+            >
+              <WzRegularEditPage />
+            </RoleGuard>
+          }
+        />
 
         <Route
           path="*"

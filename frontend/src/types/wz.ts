@@ -41,3 +41,39 @@ export type WzRegularListResult = {
   hasNextPage: boolean;
   isServerPaginated: boolean;
 };
+
+export type WzRegularContentItem = {
+  id: number;
+  contentDescription: string;
+  addingUser: string;
+  addedDate: string;
+};
+
+export type WzRegularEditData = {
+  id: number;
+  username: string;
+  senderId: string;
+  recipientId: string;
+  sealNumber: string;
+  carPlates: string;
+  createdDate: string;
+  contentList: WzRegularContentItem[];
+};
+
+export type WzRegularEditFormValues = {
+  username: string;
+  senderId: string;
+  recipientId: string;
+  sealNumber: string;
+  carPlates: string;
+};
+
+export type WzRegularCreateResult = {
+  id: number;
+};
+
+export type AdressOption = {
+  id: number;
+  name: string;
+  fullAdress: string;
+};

@@ -1,4 +1,6 @@
+import { Pencil } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getOpenWzRegular } from "../../services/wz";
 import type { WzRegularFilters, WzRegularItem } from "../../types/wz";
 
@@ -25,6 +27,7 @@ function formatCreatedDate(value: string | null | undefined): string {
 }
 
 function WzRegularPage() {
+  const navigate = useNavigate();
   const [items, setItems] = useState<WzRegularItem[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -124,56 +127,13 @@ function WzRegularPage() {
     <section className="dashboard__card">
       <div className="dashboard__card-header">
         <h2>WZ Regular</h2>
-        <button className="dashboard__action-btn">+ Nowy WZ</button>
-      </div>
-
-      <div className="dashboard__filters">
-        <input
-          className="dashboard__filter-input"
-          placeholder="Wystawil (ID)"
-          value={filters.userId}
-          onChange={(event) => handleFilterChange("userId", event.target.value)}
-        />
-        <input
-          className="dashboard__filter-input"
-          placeholder="Zaladunek"
-          value={filters.senderId}
-          onChange={(event) =>
-            handleFilterChange("senderId", event.target.value)
-          }
-        />
-        <input
-          className="dashboard__filter-input"
-          placeholder="Rozladunek"
-          value={filters.recipientId}
-          onChange={(event) =>
-            handleFilterChange("recipientId", event.target.value)
-          }
-        />
-        <input
-          className="dashboard__filter-input"
-          placeholder="Numer plomby"
-          value={filters.sealNumber}
-          onChange={(event) =>
-            handleFilterChange("sealNumber", event.target.value)
-          }
-        />
-        <input
-          className="dashboard__filter-input"
-          placeholder="Numer auta"
-          value={filters.carPlates}
-          onChange={(event) =>
-            handleFilterChange("carPlates", event.target.value)
-          }
-        />
-        <input
-          className="dashboard__filter-input"
-          placeholder="Data utworzenia"
-          value={filters.createdDate}
-          onChange={(event) =>
-            handleFilterChange("createdDate", event.target.value)
-          }
-        />
+        <button
+          type="button"
+          className="dashboard__action-btn"
+          onClick={() => navigate("/dashboard/wz-regular/new")}
+        >
+          + Nowy WZ
+        </button>
       </div>
 
       {isLoading ? (
@@ -211,6 +171,70 @@ function WzRegularPage() {
                   <th>Numer plomby</th>
                   <th>Numer auta</th>
                   <th>Data utworzenia</th>
+                  <th>Akcje</th>
+                </tr>
+                <tr className="dashboard__table-filter-row">
+                  <th className="dashboard__table-filter-cell">
+                    <input
+                      className="dashboard__table-filter-input"
+                      placeholder="Wystawil (ID)"
+                      value={filters.userId}
+                      onChange={(event) =>
+                        handleFilterChange("userId", event.target.value)
+                      }
+                    />
+                  </th>
+                  <th className="dashboard__table-filter-cell">
+                    <input
+                      className="dashboard__table-filter-input"
+                      placeholder="Szukaj zaladunku"
+                      value={filters.senderId}
+                      onChange={(event) =>
+                        handleFilterChange("senderId", event.target.value)
+                      }
+                    />
+                  </th>
+                  <th className="dashboard__table-filter-cell">
+                    <input
+                      className="dashboard__table-filter-input"
+                      placeholder="Szukaj rozladunku"
+                      value={filters.recipientId}
+                      onChange={(event) =>
+                        handleFilterChange("recipientId", event.target.value)
+                      }
+                    />
+                  </th>
+                  <th className="dashboard__table-filter-cell">
+                    <input
+                      className="dashboard__table-filter-input"
+                      placeholder="Numer plomby"
+                      value={filters.sealNumber}
+                      onChange={(event) =>
+                        handleFilterChange("sealNumber", event.target.value)
+                      }
+                    />
+                  </th>
+                  <th className="dashboard__table-filter-cell">
+                    <input
+                      className="dashboard__table-filter-input"
+                      placeholder="Numer auta"
+                      value={filters.carPlates}
+                      onChange={(event) =>
+                        handleFilterChange("carPlates", event.target.value)
+                      }
+                    />
+                  </th>
+                  <th className="dashboard__table-filter-cell">
+                    <input
+                      className="dashboard__table-filter-input"
+                      placeholder="Data utworzenia"
+                      value={filters.createdDate}
+                      onChange={(event) =>
+                        handleFilterChange("createdDate", event.target.value)
+                      }
+                    />
+                  </th>
+                  <th className="dashboard__table-filter-cell" />
                 </tr>
               </thead>
               <tbody>
@@ -222,6 +246,21 @@ function WzRegularPage() {
                     <td>{item.sealNumber ?? "-"}</td>
                     <td>{item.carPlates ?? "-"}</td>
                     <td>{formatCreatedDate(item.createdDate)}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="dashboard__edit-btn"
+                        title="Edytuj wpis"
+                        aria-label={`Edytuj wpis ${String(item.id)}`}
+                        onClick={() => {
+                          navigate(
+                            `/dashboard/wz-regular/${String(item.id)}/edit`,
+                          );
+                        }}
+                      >
+                        <Pencil size={16} strokeWidth={2} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -3,6 +3,7 @@ import AppRouter from "./app/AppRouter";
 import type { UserRole } from "./types/auth";
 
 type LoggedInUser = {
+  id: number;
   username: string;
   role: UserRole;
 };

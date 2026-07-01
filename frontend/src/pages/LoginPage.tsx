@@ -1,33 +1,37 @@
-import { useState } from 'react'
-import Button from '../components/Button'
-import Input from '../components/Input'
-import { login } from '../services/auth'
-import type { UserRole } from '../types/auth'
+import { useState } from "react";
+import Button from "../components/Button";
+import Input from "../components/Input";
+import { login } from "../services/auth";
+import type { UserRole } from "../types/auth";
 
 type LoginPageProps = {
-  onLogin: (user: { username: string; role: UserRole }) => void
-}
+  onLogin: (user: { id: number; username: string; role: UserRole }) => void;
+};
 
 function LoginPage({ onLogin }: LoginPageProps) {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError('')
-    setSuccess('')
-    setIsLoading(true)
+    event.preventDefault();
+    setError("");
+    setSuccess("");
+    setIsLoading(true);
 
     try {
-      const authResult = await login({ username, password })
-      onLogin({ username: authResult.username, role: authResult.role })
+      const authResult = await login({ username, password });
+      onLogin({
+        id: authResult.id,
+        username: authResult.username,
+        role: authResult.role,
+      });
     } catch {
-      setError('Nieprawidłowy login lub hasło')
+      setError("Nieprawidłowy login lub hasło");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -67,7 +71,9 @@ function LoginPage({ onLogin }: LoginPageProps) {
             required
           />
 
-          {error ? <p className="auth-message auth-message--error">{error}</p> : null}
+          {error ? (
+            <p className="auth-message auth-message--error">{error}</p>
+          ) : null}
           {success ? (
             <p className="auth-message auth-message--success">{success}</p>
           ) : null}
@@ -78,7 +84,7 @@ function LoginPage({ onLogin }: LoginPageProps) {
         </form>
       </section>
     </main>
-  )
+  );
 }
 
-export default LoginPage
+export default LoginPage;

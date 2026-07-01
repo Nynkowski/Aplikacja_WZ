@@ -1,13 +1,16 @@
 from typing import Optional
 from datetime import datetime
 from sqlalchemy import extract, func
-from sqlalchemy.orm import Session, contains_eager
+from sqlalchemy.orm import Session, contains_eager, joinedload
 from . import models, auth
 
 
 
 def get_user_by_username(db: Session, username: str):
 	return db.query(models.User).filter(models.User.username == username).first()
+
+def get_user_by_id(db: Session, user_id: int):
+	return db.query(models.User).filter(models.User.id == user_id).first()
 
 def post_user(db: Session, username: str, password: str, type: str):
 	hashed_password = auth.hash_password(password)
@@ -49,7 +52,12 @@ def post_wz_content(db: Session, wz_id: int, adding_user_id: int, content_descri
 	db.add(db_wz_content)
 	db.commit()
 	db.refresh(db_wz_content)
-	return db_wz_content
+	return (
+		db.query(models.WZ_Content)
+		.options(joinedload(models.WZ_Content.adding_user))
+		.filter(models.WZ_Content.id == db_wz_content.id)
+		.first()
+	)
 
 def post_wz_special(
 		db: Session,
@@ -174,5 +182,55 @@ def get_wz_open_regular_total(
 		created_date,
 	)
 	return query.count()
+
+def get_wz_regular_by_id(db: Session, wz_id: int):
+	return (
+		db.query(models.WZ_regular)
+		.options(
+			joinedload(models.WZ_regular.user),
+			joinedload(models.WZ_regular.wz_contents).joinedload(models.WZ_Content.adding_user),
+		)
+		.filter(models.WZ_regular.id == wz_id)
+		.first()
+	)
+
+def get_adresses(db: Session):
+	return db.query(models.Adress).all()
+
+def update_wz_regular(
+		db: Session,
+		wz_id: int,
+		sender_id: str,
+		recipient_id: str,
+		seal_number: str,
+		car_plates: str,
+	):
+	wz_regular = db.query(models.WZ_regular).filter(models.WZ_regular.id == wz_id).first()
+	if wz_regular is None:
+		return None
+
+	wz_regular.sender_id = sender_id
+	wz_regular.recipient_id = recipient_id
+	wz_regular.seal_number = seal_number
+	wz_regular.car_plates = car_plates
+	db.commit()
+
+	return get_wz_regular_by_id(db, wz_id)
+
+def delete_wz_content(db: Session, wz_id: int, content_id: int):
+	wz_content = (
+		db.query(models.WZ_Content)
+		.filter(
+			models.WZ_Content.id == content_id,
+			models.WZ_Content.wz_id == wz_id,
+		)
+		.first()
+	)
+	if wz_content:
+		deleted_content_id = wz_content.id
+		db.delete(wz_content)
+		db.commit()
+		return deleted_content_id
+	return None
 
 
