@@ -133,6 +133,27 @@ def test_post_wz_special_content(db_session):
     assert content.adding_user_id == user.id
     assert content.content_description == "Pallets: 5"
 
+
+def test_approve_wz_special_updates_approval_and_approver(db_session):
+    user = _create_user(db_session, username="approver_user")
+    _create_address(db_session, "SP3")
+    wz_special = crud.post_wz_special(
+        db_session,
+        user_id=user.id,
+        sender_id="SP3",
+        recipient="Approval recipient",
+        seal_number="SEAL002",
+        car_plates="WX00002",
+        approver="pending",
+    )
+
+    approved = crud.approve_wz_special(db_session, wz_special.id, "security")
+
+    assert approved is not None
+    assert approved.id == wz_special.id
+    assert approved.wz_approval is True
+    assert approved.approver == "security"
+
 def test_get_wz_open_regular(db_session):
     user = _create_user(db_session, username="open_regular_user")
     _create_address(db_session, "S3")

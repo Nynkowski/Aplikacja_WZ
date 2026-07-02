@@ -1,6 +1,6 @@
 from typing import Optional
 from datetime import datetime
-from sqlalchemy import extract, func
+from sqlalchemy import extract, func, text
 from sqlalchemy.orm import Session, contains_eager, joinedload
 from . import models, auth
 
@@ -88,6 +88,26 @@ def post_wz_special_content(db: Session, wz_id: int, adding_user_id: int, conten
 	db.commit()
 	db.refresh(db_wz_special_content)
 	return db_wz_special_content
+
+
+def approve_wz_special(db: Session, wz_id: int, approver: str):
+	bind = db.get_bind()
+	dialect_name = bind.dialect.name if bind is not None else ""
+
+	if dialect_name.startswith("mysql"):
+		query = text("CALL ZatwierdzWzSpecial(:p_wz_id, :p_approver)")
+		db.execute(query, {"p_wz_id": wz_id, "p_approver": approver})
+		db.commit()
+	else:
+		wz_special = db.query(models.WZ_special).filter(models.WZ_special.id == wz_id).first()
+		if wz_special is None:
+			return None
+
+		wz_special.wz_approval = True
+		wz_special.approver = approver
+		db.commit()
+
+	return db.query(models.WZ_special).filter(models.WZ_special.id == wz_id).first()
 
 
 def _build_wz_open_regular_query(
